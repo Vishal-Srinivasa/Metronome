@@ -1,0 +1,544 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <title>Metronome</title>
+        <style>
+            body {
+                background-image: url('main1.jpg');
+                background-repeat: no-repeat;
+            }
+			.hyper{
+				text-align:center;
+				padding:15px;
+				background-color:rgb(14, 134, 143);
+			}
+			a{
+				margin:1.5%;
+				text-decoration:none;
+				color:black;
+			}
+			.flex-con{
+				display:flex;
+				flex-direction:row;
+				justify-content:space-evenly;
+				align-items:stretch;
+				align-content:stretch;
+				gap:2.5%;
+				padding:5%;
+			}
+			.tab{
+				display:flex;
+				flex-direction:column;
+				justify-content:space-evenly;
+				align-items:stretch;
+				align-content:stretch;
+				width:45%;
+				border:2px solid black;			
+				margin:auto;
+			}
+            button{
+				font-size:25px;
+                color: white;
+				background-color:rgb(14, 134, 143);
+				margin:2%;
+                padding:2%;
+                width:auto;
+                height:auto;
+                border: 2px solid white;
+			}
+            body {font-family: 'Helvetica', sans-serif;
+                background-color: azure;
+                background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1KBOU-_RJhkHa9VnjkMTMOnBUyprUqUQ45A&usqp=CAU');
+                color: white;
+                background-size: cover;color: white
+                }
+		</style>
+        
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    </head>
+    <body>
+        <div class="hyper">
+			<a href="./main_react.html"><i class="fa-solid fa-house"></i> Home</a>
+			<a href="./ts_react.html">Time Signature&ensp;|&ensp;Sub Division</a>
+			<a href="./poly_react.html">Polyrhythm&ensp;|&ensp;Tone</a>
+			<a href="./rhytm_react.html">Rhythm Trainer&ensp;|&ensp;Practice Mode</a>
+			<a href="./save_react.html"><i class="fas fa-save"></i> Save</a>
+			<a href="./load_react.html"><i class="fas fa-file-download"></i> Load</a>
+			<a href="./search_react.html"><i class="fas fa-search"></i> Search</a>
+		</div>
+
+        <div id = "main" class="tab" style="border:0px solid white;margin-top:3%;width:100%">
+        
+        </div>
+
+        <script type = "text/babel">
+            const page_main = document.querySelector("#main")
+
+            class MainPage extends React.Component {
+                constructor(props){
+                    super(props)
+                    this.state = {tempo : 60, play : 0, all_states : {},currentIndex:0}
+                    const audio0 = new Audio("/audio0")
+                    const audio1 = new Audio("/audio1")
+                    const audio2 = new Audio("/audio2")
+                    const audio3 = new Audio("/audio3")
+                    this.audio = [audio0,audio1,audio2,audio3]
+                    this.Interval = 0
+                    this.handleAnimationIteration = this.handleAnimationIteration.bind(this);
+                }
+                handleAnimationIteration() {
+                    const { currentIndex } = this.state;
+                    this.highlightRectangleContainer(currentIndex);
+                    this.setState({ currentIndex: (currentIndex + 1) % 4 }); 
+                }
+
+                highlightRectangleContainer(index) {
+                    const rectangleContainers = document.querySelectorAll('.rectangle-container');
+                    rectangleContainers.forEach((container, i) => {
+                    container.classList.remove('highlighted');
+                    if (i === index) {
+                        container.classList.add('highlighted');
+                        setTimeout(() => {
+                            container.classList.remove('highlighted');
+                        }, 300);
+                    }
+                    });
+                }
+                
+                render(){
+                    return(
+                        <div>
+                            <div className="tab" style={{width:"70%", border: '2px solid white', backgroundColor: 'black'}}>
+                            	<div className="flex-con" style={{fontSize:"60px",marginLeft:"25%",marginRight:"25%",padding:"2%"}}>Tempo</div>
+                            	<div className="flex-con" style={{border:"1px solid white",fontSize:"25px"}}>
+                            	    
+                                    <div className="tab" style={{border:"0px",padding:"2%"}}>
+                                        <div style={{fontSize:"100px",textAlign:"center"}}>{this.state.tempo}</div>
+                                        
+                                    </div>
+                                    <div className="tab" style={{border:"0px",padding:"2%"}}>
+                                        <div style={{fontSize:"70px",textAlign:"center"}}>bpm</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex-con" style={{gap:"0",paddingBottom:"0"}}>
+                                <button onClick = {this.double_dec}>&lt;&lt;</button>
+                                <button onClick = {this.single_dec}>&lt;</button>
+                                <button onClick = {this.play_pause}>Play/Pause</button>
+                                <button onClick = {this.single_inc}>&gt;</button>
+                                <button onClick = {this.double_inc}>&gt;&gt;</button>
+                            </div>
+                            
+                        </div>
+                    )
+                }
+                play_audio = async () => {
+                    while(this.state.play){
+                        if(this.state.all_states.pracmod_switch){
+                            let start_tempo = this.state.all_states.start_tempo
+                            while(start_tempo <= this.state.all_states.max_tempo){
+                                for(var j = 0; j < this.state.all_states.every; j++){
+                                    let tempo = start_tempo  * this.state.all_states.note / 4
+                                    if(this.state.all_states.rhytnr_switch){
+                                        for(var k = 0; k < this.state.all_states.play_bars; k++){
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = 60000/tempo
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[this.state.all_states.tone_arr[i]].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+                                        for(var l = 0; l < this.state.all_states.mute_bars; l++){
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = 60000/tempo
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[0].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+
+                                    }
+                                    else{
+                                        if (this.state.all_states.subdiv == 1){
+                                            tempo = tempo/4
+                                        }
+                                        else if(this.state.all_states.subdiv == 2){
+                                            tempo = tempo/2
+                                        }
+                                        else if(this.state.all_states.subdiv == 4){
+                                            tempo = tempo*2
+                                        }
+                                        else if(this.state.all_states.subdiv == 5){
+                                            tempo = tempo*4
+                                        }
+                                        else if(this.state.all_states.subdiv == 6){
+                                            tempo = tempo*8
+                                        }
+
+                                        this.Interval = 60000/tempo
+                                        for(var i = 0; i < this.state.all_states.num; i++){
+                                            this.audio[this.state.all_states.tone_arr[i]].play()
+                                            await this.sleep(this.Interval)
+                                        }
+                                    }
+                                }
+                                start_tempo += this.state.all_states.increase_by
+                            }
+                        }
+                        else{
+                            let tempo = this.state.tempo  * this.state.all_states.note / 4
+                            if(this.state.all_states.rhytnr_switch){
+                                        for(var k = 0; k < this.state.all_states.play_bars; k++){
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = 60000/tempo
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[this.state.all_states.tone_arr[i]].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+                                        for(var l = 0; l < this.state.all_states.mute_bars; l++){
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = 60000/tempo
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[0].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+
+                                    }
+                                    else{
+                                        if (this.state.all_states.subdiv == 1){
+                                            tempo = tempo/4
+                                        }
+                                        else if(this.state.all_states.subdiv == 2){
+                                            tempo = tempo/2
+                                        }
+                                        else if(this.state.all_states.subdiv == 4){
+                                            tempo = tempo*2
+                                        }
+                                        else if(this.state.all_states.subdiv == 5){
+                                            tempo = tempo*4
+                                        }
+                                        else if(this.state.all_states.subdiv == 6){
+                                            tempo = tempo*8
+                                        }
+
+                                        this.Interval = 60000/tempo
+                                        for(var i = 0; i < this.state.all_states.num; i++){
+                                            this.audio[this.state.all_states.tone_arr[i]].play()
+                                            await this.sleep(this.Interval)
+                                        }
+                                    }
+                        }
+                    }
+                }
+                play_poly = async () => {
+                    while(this.state.play){
+                        if(this.state.all_states.pracmod_switch){
+                            let start_tempo = this.state.all_states.start_tempo
+                            while(start_tempo <= this.state.all_states.max_tempo){
+                                for(var j = 0; j < this.state.all_states.every; j++){
+                                    let tempo = start_tempo  * this.state.all_states.note / 4
+                                    if(this.state.all_states.rhytnr_switch){
+                                        for(var k = 0; k < this.state.all_states.play_bars; k++){
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = (60000/tempo)*this.state.all_states.num/this.state.all_states.poly_num
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[this.state.all_states.tone_arr[i]].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+                                        for(var l = 0; l < this.state.all_states.mute_bars; l++){
+                                            var tempo = start_tempo * this.state.all_states.note / 4
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = (60000/tempo)*this.state.all_states.num/this.state.all_states.poly_num
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[0].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+
+                                    }
+                                    else{
+                                        if (this.state.all_states.subdiv == 1){
+                                            tempo = tempo/4
+                                        }
+                                        else if(this.state.all_states.subdiv == 2){
+                                            tempo = tempo/2
+                                        }
+                                        else if(this.state.all_states.subdiv == 4){
+                                            tempo = tempo*2
+                                        }
+                                        else if(this.state.all_states.subdiv == 5){
+                                            tempo = tempo*4
+                                        }
+                                        else if(this.state.all_states.subdiv == 6){
+                                            tempo = tempo*8
+                                        }
+
+                                        this.Interval = (60000/tempo)*this.state.all_states.num/this.state.all_states.poly_num
+                                        for(var i = 0; i < this.state.all_states.num; i++){
+                                            this.audio[this.state.all_states.tone_arr[i]].play()
+                                            await this.sleep(this.Interval)
+                                        }
+                                    }
+                                }
+                                start_tempo += this.state.all_states.increase_by
+                            }
+                        }
+                        else{
+                            let tempo = this.state.tempo  * this.state.all_states.note / 4
+                            if(this.state.all_states.rhytnr_switch){
+                                        for(var k = 0; k < this.state.all_states.play_bars; k++){                                            
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = (60000/tempo)*this.state.all_states.num/this.state.all_states.poly_num
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[this.state.all_states.tone_arr[i]].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+                                        for(var l = 0; l < this.state.all_states.mute_bars; l++){
+                                            if (this.state.all_states.subdiv == 1){
+                                                tempo = tempo/4
+                                            }
+                                            else if(this.state.all_states.subdiv == 2){
+                                                tempo = tempo/2
+                                            }
+                                            else if(this.state.all_states.subdiv == 4){
+                                                tempo = tempo*2
+                                            }
+                                            else if(this.state.all_states.subdiv == 5){
+                                                tempo = tempo*4
+                                            }
+                                            else if(this.state.all_states.subdiv == 6){
+                                                tempo = tempo*8
+                                            }
+
+                                            this.Interval = (60000/tempo)*this.state.all_states.num/this.state.all_states.poly_num
+                                            for(var i = 0; i < this.state.all_states.num; i++){
+                                                this.audio[0].play()
+                                                await this.sleep(this.Interval)
+                                            }
+                                        }
+
+                                    }
+                                    else{
+                                        if (this.state.all_states.subdiv == 1){
+                                            tempo = tempo/4
+                                        }
+                                        else if(this.state.all_states.subdiv == 2){
+                                            tempo = tempo/2
+                                        }
+                                        else if(this.state.all_states.subdiv == 4){
+                                            tempo = tempo*2
+                                        }
+                                        else if(this.state.all_states.subdiv == 5){
+                                            tempo = tempo*4
+                                        }
+                                        else if(this.state.all_states.subdiv == 6){
+                                            tempo = tempo*8
+                                        }
+
+                                        this.Interval = (60000/tempo)*this.state.all_states.num/this.state.all_states.poly_num
+                                        for(var i = 0; i < this.state.all_states.num; i++){
+                                            this.audio[this.state.all_states.tone_arr[i]].play()
+                                            await this.sleep(this.Interval)
+                                        }
+                                    }
+                        }
+                    }
+                }
+                sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms-150))
+                componentDidMount = () => {
+                    fetch('http://localhost:8080/main/react_states')
+                        .then((response) => response.json())
+                        .then((data) => this.setState({ all_states : data.all_states, tempo : data.tempo }))
+                        .catch((error) => console.error('Error fetching data:', error))
+                }
+                play_pause = () => {
+                    if(this.state.play){
+                        this.setState({play : 0})
+                    }
+                    else{
+                        this.setState({play : 1}, () => {
+                            this.play_audio()
+                            if(this.state.all_states.poly_switch){
+                                this.play_poly()
+                            }
+                        })
+                        
+                    }
+                }
+                double_inc = () => {
+                    if (this.state.tempo <= 490)
+                        this.setState({tempo : this.state.tempo + 10}, () => {
+                            fetch('http://localhost:8080/main/double_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                single_inc = () => {
+                    if (this.state.tempo < 500)
+                        this.setState({tempo : this.state.tempo + 1}, () => {
+                            fetch('http://localhost:8080/main/single_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                single_dec = () => {
+                    if (this.state.tempo > 10)
+                        this.setState({tempo : this.state.tempo - 1}, () => {
+                            fetch('http://localhost:8080/main/single_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                double_dec = () => {
+                    if (this.state.tempo >= 20)
+                        this.setState({tempo : this.state.tempo - 10}, () => {
+                            fetch('http://localhost:8080/main/double_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+            }
+
+            ReactDOM.render(<MainPage/>, page_main)
+        </script>
+    </body>
+</html>

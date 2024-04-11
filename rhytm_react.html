@@ -1,0 +1,451 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <title>Metronome</title>
+        	<style>
+			.hyper{
+				text-align:center;
+				padding:15px;
+				background-color:rgb(14, 134, 143);
+			}
+			a{
+				margin:1.5%;
+				text-decoration:none;
+				color:black;
+			}
+			.flex-con{
+				display:flex;
+				flex-direction:row;
+				justify-content:space-evenly;
+				align-items:stretch;
+				align-content:stretch;
+				gap:2.5%;
+				padding:5%;
+			}
+			.tab{
+				display:flex;
+				flex-direction:column;
+				justify-content:space-evenly;
+				align-items:stretch;
+				align-content:stretch;
+				width:45%;
+				border:2px solid black;			
+				margin:auto;
+                border-radius: 2px;
+			}
+			.head{
+				text-align:center;
+				border-bottom:2px solid white;
+				padding:5%;
+				font-size:30px;
+			}
+			button{
+				font-size:25px;
+				margin:2%;
+			}
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 60px;
+                height: 34px;
+            }
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                -webkit-transition: .4s;
+                transition: .4s;
+            }
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                -webkit-transition: .4s;
+                transition: .4s;
+            }
+            input:checked + .slider {
+                background-color: rgb(14, 134, 143);
+            }
+            input:focus + .slider {
+                box-shadow: 0 0 1px rgb(14, 134, 143);
+            }
+            input:checked + .slider:before {
+                -webkit-transform: translateX(26px);
+                -ms-transform: translateX(26px);
+                transform: translateX(26px);
+            }
+            .slider.round {
+                border-radius: 34px;
+                color: rgb(14, 134, 143);
+            }
+            .slider.round:before {
+                border-radius: 50%;
+            }
+            body {
+                font-family: 'Helvetica', sans-serif;
+                background-color: azure;
+                background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1KBOU-_RJhkHa9VnjkMTMOnBUyprUqUQ45A&usqp=CAU');
+                color: white;
+                background-size: cover;
+            }
+            button {
+                font-size: 25px;
+                background-color: rgb(14, 134, 143);
+                border: 2px solid white;
+                border-radius: 1px;
+                margin: 5px;
+                width: 40px;
+                height: 35px;
+                cursor: pointer;
+            }
+		</style>
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    </head>
+    <body>
+    	<div class="hyper">
+			<a href="./main_react.html"><i class="fa-solid fa-house"></i> Home</a>
+			<a href="./ts_react.html">Time Signature&ensp;|&ensp;Sub Division</a>
+			<a href="./poly_react.html">Polyrhythm&ensp;|&ensp;Tone</a>
+			<a href="./rhytm_react.html">Rhythm Trainer&ensp;|&ensp;Practice Mode</a>
+			<a href="./save_react.html"><i class="fas fa-save"></i> Save</a>
+			<a href="./load_react.html"><i class="fas fa-file-download"></i> Load</a>
+			<a href="./search_react.html"><i class="fas fa-search"></i> Search</a>
+		</div>
+    
+        <div class="flex-con">
+        <div id = "rhytrn" class="tab"></div>
+        <div id = "pramod" class="tab"></div>
+        </div>
+        <script type = "text/babel">
+            const rhytrn = document.querySelector("#rhytrn")
+            const pramod = document.querySelector("#pramod")
+
+            class RhythmTrainer extends React.Component{
+                constructor(props){
+                    super(props)
+                    this.state = {play_bars : 1, mute_bars : 1,rhytnr_switch: false}
+                    
+                }
+                render(){
+                    return(
+                        <div style={{ border: '2px solid white', backgroundColor: 'black', borderRadius: '8px'}}>
+                            <div className="head">Rhythm Trainer</div>
+                            <div className="flex-con" style={{marginTop:"3%"}}>
+                                <label className="switch">
+                                    <input type="checkbox" checked = {this.state.rhytnr_switch} onClick={this.toggle}/>
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                            <div className="flex-con" style={{margin:"5%",marginTop:"2%",fontSize:"25px"}}>
+                                <div style={{marginTop:"3%"}}>Play:</div>
+                                <button onClick = {this.play_inc}>+</button>
+                                <div style={{marginTop:"3%"}}>{this.state.play_bars}</div>
+                                <button onClick = {this.play_dec}>-</button>
+                            </div>
+                            <div className="flex-con" style={{margin:"5%",marginBottom:"10%",fontSize:"25px"}}>
+                            	<div style={{marginTop:"3%"}}>Mute:</div>
+                                <button onClick = {this.mute_inc}>+</button>
+                                <div style={{marginTop:"3%"}}>{this.state.mute_bars}</div>
+                                <button onClick = {this.mute_dec}>-</button>
+                            </div>
+                        </div>
+                    )
+                }
+                componentDidMount = () => {
+                    fetch('http://localhost:8080/rhytnr_mount')
+                            .then((response) => response.json())
+                            .then((data) => this.setState({ rhytnr_switch : data.rhytnr_switch , play_bars : data.play_bars, mute_bars : data.mute_bars }))
+                            .catch((error) => console.error('Error fetching data:', error));
+                }
+                componentDidUpdate = () => {
+                    fetch('http://localhost:8080/rhytnr_mount')
+                            .then((response) => response.json())
+                            .then((data) => this.setState({ rhytnr_switch : data.rhytnr_switch , play_bars : data.play_bars, mute_bars : data.mute_bars }))
+                            .catch((error) => console.error('Error fetching data:', error));
+                }
+                toggle = () => {
+                    this.setState({rhytnr_switch : !this.state.rhytnr_switch}, () => {
+                            fetch('http://localhost:8080/rhythm/toggle', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.rhytnr_switch }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                play_inc = () => {
+                    if(this.state.play_bars < 32)
+                        this.setState({play_bars : this.state.play_bars + 1}, () => {
+                            fetch('http://localhost:8080/rhythm/play_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.play_bars }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                play_dec = () => {
+                    if(this.state.play_bars > 1)
+                        this.setState({play_bars : this.state.play_bars - 1}, () => {
+                            fetch('http://localhost:8080/rhythm/play_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.play_bars }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                mute_inc = () => {
+                    if(this.state.mute_bars < 32)
+                        this.setState({mute_bars : this.state.mute_bars + 1}, () => {
+                            fetch('http://localhost:8080/rhythm/mute_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.mute_bars }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                mute_dec = () => {
+                    if(this.state.mute_bars > 1)
+                        this.setState({mute_bars : this.state.mute_bars - 1}, () => {
+                            fetch('http://localhost:8080/rhythm/mute_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.mute_bars }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+            }
+
+            class PracticeMode extends React.Component {
+                constructor(props){
+                    super(props)
+                    this.state = {every : 4, increase_by : 1, start_tempo : 100, max_tempo : 140,pracmod_switch: false}             }
+                render(){
+                    return(
+                        <div style={{ border: '2px solid white', backgroundColor: 'black', borderRadius: '8px'}}>
+                            <div className="head">Practice Mode</div>
+                            <div className="flex-con" style={{margin:"3%"}}>
+                                <label className="switch">
+                                    <input type="checkbox" checked = {this.state.pracmod_switch} onClick={this.toggle1}/>
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                            <div  className="flex-con" style={{padding:"2%",paddingTop:"0%",fontSize:"25px"}}>
+                                <div style={{marginTop:"3%",paddingRight:"50px"}}>Every:</div>
+                                <button onClick = {this.every_inc}>+</button>
+                                <div style={{marginTop:"3%"}}>{this.state.every}</div>
+                                <button onClick = {this.every_dec}>-</button>
+                            </div>
+                            <div className="flex-con" style={{padding:"2%",fontSize:"25px"}}>
+                                <div style={{marginTop:"3%",paddingRight:"30px"}}>Increase:</div>
+                                <button onClick = {this.increase_inc}>+</button>
+                                <div style={{marginTop:"3%"}}>{this.state.increase_by}</div>
+                                <button onClick = {this.increase_dec}>-</button>
+                            </div>
+                            <div className="flex-con" style={{padding:"2%",fontSize:"25px"}}>
+                                <div style={{marginTop:"3%"}}>Start Tempo:</div>
+                                <button onClick = {this.start_inc}>+</button>
+                                <div style={{marginTop:"3%"}}>{this.state.start_tempo}</div>
+                                <button onClick = {this.start_dec}>-</button>
+                            </div>
+                            <div className="flex-con" style={{padding:"2%",marginBottom:"4%",fontSize:"25px"}}>
+                                <div style={{marginTop:"3%"}}>Max Tempo:</div>
+                                <button onClick = {this.max_inc}>+</button>
+                                <div style={{marginTop:"3%"}}>{this.state.max_tempo}</div>
+                                <button onClick = {this.max_dec}>-</button>
+                            </div>
+                        </div>
+                    )
+                }
+                componentDidMount = () => {
+                    fetch('http://localhost:8080/pracmod_mount')
+                        .then((response) => response.json())
+                        .then((data) => this.setState({ pracmod_switch : data.pracmod_switch, every : data.every, increase_by : data.increase_by, start_tempo : data.start_tempo, max_tempo : data.max_tempo }))
+                        .catch((error) => console.error('Error fetching data:', error));
+                }
+                componentDidUpdate = () => {
+                    fetch('http://localhost:8080/pracmod_mount')
+                        .then((response) => response.json())
+                        .then((data) => this.setState({ pracmod_switch : data.pracmod_switch, every : data.every, increase_by : data.increase_by, start_tempo : data.start_tempo, max_tempo : data.max_tempo }))
+                        .catch((error) => console.error('Error fetching data:', error));
+                }
+                toggle1 = () => {
+                    this.setState({pracmod_switch : !this.state.pracmod_switch}, () => {
+                            fetch('http://localhost:8080/rhythm/toggle1', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.pracmod_switch }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                every_inc = () => {
+                    if(this.state.every < 2500)
+                        this.setState({every : this.state.every+4}, () => {
+                            fetch('http://localhost:8080/rhythm/every_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.every }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                every_dec = () => {
+                    if(this.state.every > 4)
+                        this.setState({every : this.state.every-4}, () => {
+                            fetch('http://localhost:8080/rhythm/every_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.every }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                increase_inc = () => {
+                    if(this.state.increase_by < 25)
+                        this.setState({increase_by : this.state.increase_by+1}, () => {
+                            fetch('http://localhost:8080/rhythm/increase_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.increase_by }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                increase_dec = () => {
+                    if(this.state.increase_by > 1)
+                        this.setState({increase_by : this.state.increase_by-1}, () => {
+                            fetch('http://localhost:8080/rhythm/increase_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.increase_by }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                start_inc = () => {
+                    if(this.state.start_tempo < 500 && this.state.start_tempo < this.state.max_tempo)
+                        this.setState({start_tempo : this.state.start_tempo+5}, () => {
+                            fetch('http://localhost:8080/rhythm/start_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.start_tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                start_dec = () => {
+                    if(this.state.start_tempo > 10)
+                        this.setState({start_tempo : this.state.start_tempo-5}, () => {
+                            fetch('http://localhost:8080/rhythm/start_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.start_tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                max_inc = () => {
+                    if(this.state.max_tempo < 500)
+                        this.setState({max_tempo : this.state.max_tempo+5}, () => {
+                            fetch('http://localhost:8080/rhythm/max_inc', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.max_tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+                max_dec = () => {
+                    if(this.state.max_tempo > 10 && this.state.start_tempo < this.state.max_tempo)
+                        this.setState({max_tempo : this.state.max_tempo-5}, () => {
+                            fetch('http://localhost:8080/rhythm/max_dec', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ variable: this.state.max_tempo }),
+                            })
+                                .then((response) => response.text())
+                                .then((data) => console.log(data))
+                                .catch((error) => console.error('Error sending variable to server:', error));
+                        })
+                }
+            }           
+
+            ReactDOM.render(<RhythmTrainer/>,rhytrn)
+
+            ReactDOM.render(<PracticeMode/>,pramod)
+        </script>
+    </body>
+</html>

@@ -1,0 +1,158 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <title>Metronome</title>
+        <style>
+			.hyper{
+				text-align:center;
+				padding:15px;
+				background-color:rgb(14, 134, 143);
+			}
+			a{
+				margin:1.5%;
+				text-decoration:none;
+				color:black;
+			}
+			.flex-con{
+				display:flex;
+				flex-direction:row;
+				justify-content:space-evenly;
+				align-items:stretch;
+				align-content:stretch;
+				gap:2.5%;
+				padding:5%;
+			}
+			.tab{
+				display:flex;
+                background-color:black;
+				flex-direction:column;
+				justify-content:space-evenly;
+				align-items:stretch;
+				align-content:stretch;
+				width:45%;
+				border:2px solid black;			
+				margin:auto;
+			}
+			.head{
+				text-align:center;
+				border-bottom:2px solid black;
+				padding:5%;
+				font-size:30px;
+			}
+            button{
+				font-size:25px;
+                background-color: rgb(14, 134, 143);
+                border: 2px solid white;
+				margin:2%;
+                padding:2%;
+                width:auto;
+                height:auto;
+            }
+            body {
+                font-family: 'Musical Symbols', sans-serif;
+                background-color: azure;
+                background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1KBOU-_RJhkHa9VnjkMTMOnBUyprUqUQ45A&usqp=CAU');
+                color: white;
+                background-size: cover;
+            }
+		</style>
+                <style>
+                    .hyper a,
+                    .flex-con,
+                    .tab,
+                    button {
+                        border-radius: 10px;
+                    }
+                </style>
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    </head>
+    <body>
+        <div class="hyper">
+			<a href="./main_react.html"><i class="fa-solid fa-house"></i> Home</a>
+			<a href="./ts_react.html">Time Signature&ensp;|&ensp;Sub Division</a>
+			<a href="./poly_react.html">Polyrhythm&ensp;|&ensp;Tone</a>
+			<a href="./rhytm_react.html">Rhythm Trainer&ensp;|&ensp;Practice Mode</a>
+			<a href="./save_react.html"><i class="fas fa-save"></i> Save</a>
+			<a href="./load_react.html"><i class="fas fa-file-download"></i> Load</a>
+			<a href="./search_react.html"><i class="fas fa-search"></i> Search</a>
+		</div>
+
+        <div id = "load"></div>
+
+        <script type = "text/babel">
+            const load_page = document.querySelector("#load")
+
+            class LoadPage extends React.Component {
+                constructor(props) {
+                    super(props)
+                    this.state = {load_search_name : "", load_id : "", loadedList : []}
+                    this.loaded_buttons
+                }
+                render(){
+                    if (this.state.loadedList.length != 0) {
+                                this.loaded_buttons = this.state.loadedList.map((value) => (
+                                    <div className="flex-con" style={{padding:"0%", border: '2px solid white', backgroundColor: 'black' }}>
+                                        <button id = {value.save_name} onClick = {this.load_button}>{value.save_name}         Author:{value.user_name}</button>
+                                        <button id = {value.save_name} onClick = {this.delete_button}>Delete</button>
+                                    </div>
+                                ))
+                            }
+                    return(
+                        <div className="tab" style={{marginTop:"5%", border: '2px solid white', backgroundColor: 'black' }}>
+                            <div className="flex-con" style={{marginTop:"5%"}}>
+                                <div style={{fontSize:"30px",marginTop:"3%"}}>Add:</div>
+                                <form method = "post" action = "/load" target = "_self">
+                                <input type = "text" style={{fontSize:"25px",padding:"2%",width:"100%",height:"50px",marginTop:"2%"}} name = "load_name"/>
+                                <button type = "submit" style = {{marginTop: "30%", marginLeft: "20%"}}>Search</button>
+                                </form>
+                            </div>
+                            <div className="tab" style={{marginTop:"5%",marginBottom:"10%",fontSize:"25px",width:"80%"}}>
+                                <div id = "loaded_list">{this.loaded_buttons}</div>
+                            </div>
+                        </div>
+                    )
+                }
+                componentDidMount = () => {
+                    fetch('http://localhost:8080/loadResult')
+                        .then((response) => response.json())
+                        .then((data) => this.setState({ loadedList : data.loaded_array }, () => {
+                            
+                        }))
+                        .catch((error) => console.error('Error fetching data:', error));
+                }
+                load_button = (event) => {
+                    this.setState({load_id : event.target.id}, () => {
+                        fetch("http://localhost:8080/load_states", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({variable : this.state.load_id}),
+                        })
+                            .then((response) => response.text())
+                            .then((data) => console.log(data))
+                            .catch((error) => console.error('Error:', error))
+                        })
+                }
+                delete_button = (event) => {
+                    this.setState({load_id : event.target.id}, () => {
+                        fetch("http://localhost:8080/delete", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({variable : this.state.load_id}),
+                        })
+                            .then((response) => response.json())
+                            .then((data) => console.log(data))
+                            .catch((error) => console.error('Error:', error))
+                        })
+                }
+            }
+
+            ReactDOM.render(<LoadPage/>, load_page)
+        </script>
+    </body>
+</html>

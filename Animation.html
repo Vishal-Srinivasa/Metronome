@@ -1,0 +1,109 @@
+<html>
+<head>
+  <style>
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      50% {
+        transform: translateX(calc(100vw - 40px));
+      }
+    }
+
+    #bouncing-bar {
+      width: 200px;
+      height: 30px;
+      background-color: rgb(10, 100, 107);
+      position: fixed;
+      bottom: 50px;
+      left: 0;
+      animation: bounce 2s linear infinite;
+    }
+
+    .row-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 100px;
+    }
+
+    .rectangle-container {
+      flex: 0 0 30%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .rectangle {
+      width: 200px;
+      height: 30px;
+      background-color: rgb(10, 100, 107);
+      margin-bottom: 5px;
+      transition: background-color 0.3s;
+      border: 1px solid #ffffff;
+    }
+
+    .rectangle:not(:last-child) {
+      margin-bottom: 0;
+    }
+
+    .highlighted .rectangle {
+      background-color: #0b4163;
+    }
+  </style>
+</head>
+<body>
+
+<div class="row-container">
+  <div class="rectangle-container" id="rectangleContainer1">
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+  </div>
+
+  <div class="rectangle-container" id="rectangleContainer2">
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+  </div>
+
+  <div class="rectangle-container" id="rectangleContainer3">
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+  </div>
+</div>
+
+<div id="bouncing-bar"></div>
+
+
+
+<script>
+  var bar = document.getElementById('bouncing-bar');
+  var rectangleContainers = document.querySelectorAll('.rectangle-container');
+
+  var currentIndex = 0;
+
+  bar.addEventListener('animationiteration', function() {
+    highlightRectangleContainer(currentIndex);
+    currentIndex = (currentIndex + 1) % rectangleContainers.length;
+  });
+
+  function highlightRectangleContainer(index) {
+    rectangleContainers.forEach(function(container, i) {
+      container.classList.remove('highlighted');
+      if (i === index) {
+        container.classList.add('highlighted');
+        setTimeout(function() {
+          container.classList.remove('highlighted');
+        }, 300);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
